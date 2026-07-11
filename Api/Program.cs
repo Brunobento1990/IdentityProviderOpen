@@ -1,15 +1,31 @@
+using Api.Configuracoes;
 using Infrastructure;
 using Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .ConfigureController()
+    .ConfigureSwagger()
     .AddContext(builder.Configuration);
 
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello World!");
+
+if (builder.Configuration["AddSwagger"]?.ToUpper() == "TRUE")
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
+app.UseAuthorization();
+
+app.UseCors("base");
+
+app.MapControllers();
 
 _ = Task.Run(async () =>
 {

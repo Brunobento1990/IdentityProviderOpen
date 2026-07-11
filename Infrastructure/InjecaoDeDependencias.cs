@@ -1,4 +1,6 @@
+using Domain.Repositories;
 using Infrastructure.Context;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,13 @@ public static class InjecaoDeDependencias
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(configuration["ConnectionStrings:DefaultConnection"]));
+
+        return services;
+    }
+
+    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<ILoginParceiroMembroRepository, LoginParceiroMembroRepository>();
 
         return services;
     }

@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .ConfigureController()
     .ConfigureSwagger()
+    .AddRepositories()
     .AddContext(builder.Configuration);
 
 var app = builder.Build();

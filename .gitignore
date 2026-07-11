@@ -370,3 +370,4 @@ FodyWeavers.xsd
 .vscode
 .idea/*
 .idea*
+Api/appsettings.Development.json

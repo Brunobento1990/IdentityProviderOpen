@@ -1,0 +1,28 @@
+version: "3.4"
+
+services:
+  redis:
+    image: redis:3.2.5-alpine
+    restart: always
+    ports:
+      - "4042:6379"
+    networks:
+      - identity-provider-open
+  postgres:
+    image: postgres
+    restart: always
+    ports:
+      - "5455:5432"
+    environment:
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=identity-provider-open
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - identity-provider-open
+volumes:
+  postgres_data:
+
+networks:
+  identity-provider-open:
+    driver: bridge

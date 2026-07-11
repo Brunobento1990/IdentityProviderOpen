@@ -1,0 +1,17 @@
+using Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Infrastructure;
+
+public static class InjecaoDeDependencias
+{
+    public static IServiceCollection AddContext(this IServiceCollection services, IConfiguration configuration)
+    {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(configuration["ConnectionStrings:DefaultConnection"]));
+
+        return services;
+    }
+}

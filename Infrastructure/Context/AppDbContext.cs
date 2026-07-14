@@ -12,8 +12,9 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Parceiro> Parceiros { get; set; }
-    public DbSet<ParceiroMembro> ParceiroMembros { get; set; }
     public DbSet<Pessoa> Pessoas { get; set; }
+    public DbSet<PessoaJuridica> PessoasJuridicas { get; set; }
+    public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Produto> Produtos { get; set; }
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<UsuarioEmail> UsuarioEmails { get; set; }
@@ -22,8 +23,9 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfiguration(new ParceiroConfiguracao());
-        builder.ApplyConfiguration(new ParceiroMembroConfiguracao());
         builder.ApplyConfiguration(new PessoaConfiguracao());
+        builder.ApplyConfiguration(new PessoaJuridicaConfiguracao());
+        builder.ApplyConfiguration(new ClienteConfiguracao());
         builder.ApplyConfiguration(new ProdutoConfiguracao());
         builder.ApplyConfiguration(new UsuarioConfiguracao());
         builder.ApplyConfiguration(new UsuarioEmailConfiguracao());

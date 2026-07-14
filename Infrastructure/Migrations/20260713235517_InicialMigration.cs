@@ -44,6 +44,22 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PessoasJuridicas",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    RazaoSocial = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    NomeFantasia = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Cnpj = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    DataDeCadastro = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "now()"),
+                    DataDeAtualizacao = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PessoasJuridicas", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Produtos",
                 columns: table => new
                 {
@@ -90,28 +106,29 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ParceiroMembros",
+                name: "Clientes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PessoaJuridicaId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParceiroId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UsuarioId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false),
                     DataDeCadastro = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "now()"),
                     DataDeAtualizacao = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ParceiroMembros", x => x.Id);
+                    table.PrimaryKey("PK_Clientes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ParceiroMembros_Parceiros_ParceiroId",
+                        name: "FK_Clientes_Parceiros_ParceiroId",
                         column: x => x.ParceiroId,
                         principalTable: "Parceiros",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ParceiroMembros_Usuarios_UsuarioId",
-                        column: x => x.UsuarioId,
-                        principalTable: "Usuarios",
+                        name: "FK_Clientes_PessoasJuridicas_PessoaJuridicaId",
+                        column: x => x.PessoaJuridicaId,
+                        principalTable: "PessoasJuridicas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -141,19 +158,47 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClienteProduto",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClienteId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProdutoId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false),
+                    DataDeCadastro = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    DataDeAtualizacao = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClienteProduto", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClienteProduto_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClienteProduto_Produtos_ProdutoId",
+                        column: x => x.ProdutoId,
+                        principalTable: "Produtos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UsuarioProdutoAcessos",
                 columns: table => new
                 {
                     UsuarioId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProdutoId = table.Column<Guid>(type: "uuid", nullable: false)
+                    ClienteProdutoId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsuarioProdutoAcessos", x => new { x.UsuarioId, x.ProdutoId });
+                    table.PrimaryKey("PK_UsuarioProdutoAcessos", x => new { x.UsuarioId, x.ClienteProdutoId });
                     table.ForeignKey(
-                        name: "FK_UsuarioProdutoAcessos_Produtos_ProdutoId",
-                        column: x => x.ProdutoId,
-                        principalTable: "Produtos",
+                        name: "FK_UsuarioProdutoAcessos_ClienteProduto_ClienteProdutoId",
+                        column: x => x.ClienteProdutoId,
+                        principalTable: "ClienteProduto",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -185,14 +230,34 @@ namespace Infrastructure.Migrations
                 values: new object[] { new Guid("044f48b3-6ac1-4dbc-88d2-7d8702e50925"), null, null, null, true, null, new Guid("7904adbc-35d8-4bd4-9c30-a02bd1bd29ba") });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ParceiroMembros_ParceiroId",
-                table: "ParceiroMembros",
+                name: "IX_ClienteProduto_ClienteId",
+                table: "ClienteProduto",
+                column: "ClienteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClienteProduto_ProdutoId",
+                table: "ClienteProduto",
+                column: "ProdutoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clientes_Ativo",
+                table: "Clientes",
+                column: "Ativo");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clientes_Ativo_ParceiroId",
+                table: "Clientes",
+                columns: new[] { "Ativo", "ParceiroId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clientes_ParceiroId",
+                table: "Clientes",
                 column: "ParceiroId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ParceiroMembros_UsuarioId",
-                table: "ParceiroMembros",
-                column: "UsuarioId");
+                name: "IX_Clientes_PessoaJuridicaId",
+                table: "Clientes",
+                column: "PessoaJuridicaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Parceiros_Cnpj",
@@ -215,6 +280,18 @@ namespace Infrastructure.Migrations
                 name: "IX_Pessoas_Nome",
                 table: "Pessoas",
                 column: "Nome");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PessoasJuridicas_Cnpj",
+                table: "PessoasJuridicas",
+                column: "Cnpj",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PessoasJuridicas_RazaoSocial",
+                table: "PessoasJuridicas",
+                column: "RazaoSocial",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Produtos_Ativo_ParceiroId",
@@ -250,9 +327,9 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuarioProdutoAcessos_ProdutoId",
+                name: "IX_UsuarioProdutoAcessos_ClienteProdutoId",
                 table: "UsuarioProdutoAcessos",
-                column: "ProdutoId");
+                column: "ClienteProdutoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_Email",
@@ -271,25 +348,31 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ParceiroMembros");
-
-            migrationBuilder.DropTable(
                 name: "UsuarioEmails");
 
             migrationBuilder.DropTable(
                 name: "UsuarioProdutoAcessos");
 
             migrationBuilder.DropTable(
-                name: "Produtos");
+                name: "ClienteProduto");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");
 
             migrationBuilder.DropTable(
-                name: "Parceiros");
+                name: "Clientes");
+
+            migrationBuilder.DropTable(
+                name: "Produtos");
 
             migrationBuilder.DropTable(
                 name: "Pessoas");
+
+            migrationBuilder.DropTable(
+                name: "PessoasJuridicas");
+
+            migrationBuilder.DropTable(
+                name: "Parceiros");
         }
     }
 }

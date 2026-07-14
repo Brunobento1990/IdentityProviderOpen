@@ -8,6 +8,6 @@ internal class UsuarioProdutoAcessoConfiguracao : IEntityTypeConfiguration<Usuar
 {
     public void Configure(EntityTypeBuilder<UsuarioProdutoAcesso> builder)
     {
-        builder.HasKey(x => new { x.UsuarioId, x.ProdutoId });
+        builder.HasKey(x => new { x.UsuarioId, x.ClienteProdutoId });
     }
 }

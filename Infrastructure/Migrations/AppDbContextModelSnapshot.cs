@@ -22,6 +22,72 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Entities.Cliente", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("DataDeAtualizacao")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DataDeCadastro")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("ParceiroId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PessoaJuridicaId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo");
+
+                    b.HasIndex("ParceiroId");
+
+                    b.HasIndex("PessoaJuridicaId");
+
+                    b.HasIndex("Ativo", "ParceiroId");
+
+                    b.ToTable("Clientes");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClienteProduto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ClienteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DataDeAtualizacao")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DataDeCadastro")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("ProdutoId");
+
+                    b.ToTable("ClienteProduto");
+                });
+
             modelBuilder.Entity("Domain.Entities.Parceiro", b =>
                 {
                     b.Property<Guid>("Id")
@@ -76,35 +142,6 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.ParceiroMembro", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("DataDeAtualizacao")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("DataDeCadastro")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<Guid>("ParceiroId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UsuarioId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParceiroId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("ParceiroMembros");
-                });
-
             modelBuilder.Entity("Domain.Entities.Pessoa", b =>
                 {
                     b.Property<Guid>("Id")
@@ -145,6 +182,46 @@ namespace Infrastructure.Migrations
                             DataDeCadastro = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Nome = "Seed"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.PessoaJuridica", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Cnpj")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("DataDeAtualizacao")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DataDeCadastro")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("NomeFantasia")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("RazaoSocial")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Cnpj")
+                        .IsUnique();
+
+                    b.HasIndex("RazaoSocial")
+                        .IsUnique();
+
+                    b.ToTable("PessoasJuridicas");
                 });
 
             modelBuilder.Entity("Domain.Entities.Produto", b =>
@@ -295,17 +372,17 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("UsuarioId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ProdutoId")
+                    b.Property<Guid>("ClienteProdutoId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("UsuarioId", "ProdutoId");
+                    b.HasKey("UsuarioId", "ClienteProdutoId");
 
-                    b.HasIndex("ProdutoId");
+                    b.HasIndex("ClienteProdutoId");
 
                     b.ToTable("UsuarioProdutoAcessos");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ParceiroMembro", b =>
+            modelBuilder.Entity("Domain.Entities.Cliente", b =>
                 {
                     b.HasOne("Domain.Entities.Parceiro", "Parceiro")
                         .WithMany()
@@ -313,15 +390,34 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Usuario", "Usuario")
+                    b.HasOne("Domain.Entities.PessoaJuridica", "PessoaJuridica")
                         .WithMany()
-                        .HasForeignKey("UsuarioId")
+                        .HasForeignKey("PessoaJuridicaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Parceiro");
 
-                    b.Navigation("Usuario");
+                    b.Navigation("PessoaJuridica");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ClienteProduto", b =>
+                {
+                    b.HasOne("Domain.Entities.Cliente", "Cliente")
+                        .WithMany("Produtos")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Produto");
                 });
 
             modelBuilder.Entity("Domain.Entities.Produto", b =>
@@ -359,9 +455,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.UsuarioProdutoAcesso", b =>
                 {
-                    b.HasOne("Domain.Entities.Produto", "Produto")
+                    b.HasOne("Domain.Entities.ClienteProduto", "ClienteProduto")
                         .WithMany()
-                        .HasForeignKey("ProdutoId")
+                        .HasForeignKey("ClienteProdutoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -371,9 +467,14 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Produto");
+                    b.Navigation("ClienteProduto");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Cliente", b =>
+                {
+                    b.Navigation("Produtos");
                 });
 
             modelBuilder.Entity("Domain.Entities.Usuario", b =>

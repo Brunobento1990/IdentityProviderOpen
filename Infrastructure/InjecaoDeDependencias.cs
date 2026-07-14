@@ -1,6 +1,4 @@
-using Domain.Repositories;
 using Infrastructure.Context;
-using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +17,6 @@ public static class InjecaoDeDependencias
 
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<ILoginParceiroMembroRepository, LoginParceiroMembroRepository>();
-
         return services;
     }
 }
